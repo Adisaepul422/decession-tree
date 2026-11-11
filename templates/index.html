@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prediksi Churn Pelanggan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top">
+  <h1>Prediksi churn pelanggan</h1>
+  <p>Isi profil pelanggan telekomunikasi. Model Decision Tree akan memperkirakan apakah pelanggan berisiko berhenti berlangganan, lengkap dengan alasan di balik keputusannya.</p>
+</header>
+
+<main class="layout">
+  <form class="card" method="post" action="{{ url_for('predict_view') }}#hasil" novalidate>
+    {% if errors %}
+    <div class="errors" role="alert">
+      <strong>Periksa kembali isian Anda:</strong>
+      <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    {% for title, fields in groups %}
+    <fieldset>
+      <legend>{{ title }}</legend>
+      <div class="grid">
+        {% for f in fields %}
+        <div class="field">
+          <label for="{{ f }}">{{ labels[f] }}</label>
+          {% if f in num_fields %}
+            <input id="{{ f }}" name="{{ f }}" type="text" inputmode="decimal"
+                   value="{{ values[f] }}" autocomplete="off"
+                   {% if f == 'TotalCharges' %}placeholder="Opsional"{% endif %}>
+            {% if f == 'TotalCharges' %}<small>Jika kosong, dihitung dari lama berlangganan × tagihan bulanan.</small>{% endif %}
+          {% else %}
+            <select id="{{ f }}" name="{{ f }}">
+              {% for val, text in options(f) %}
+              <option value="{{ val }}" {% if values[f] == val %}selected{% endif %}>{{ text }}</option>
+              {% endfor %}
+            </select>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </fieldset>
+    {% endfor %}
+
+    <button type="submit">Prediksi churn</button>
+  </form>
+
+  <section id="hasil" class="card result {% if result %}{{ 'is-churn' if result.churn else 'is-stay' }}{% endif %}" tabindex="-1" aria-live="polite">
+    {% if result %}
+      <div class="signal" role="img" aria-label="Sinyal loyalitas {{ result.bars }} dari 5">
+        {% for i in range(1, 6) %}<span class="bar b{{ i }} {{ 'on' if i <= result.bars else '' }}"></span>{% endfor %}
+      </div>
+      <h2>{{ result.label }}</h2>
+      <p class="pct"><strong>{{ result.pct }}%</strong> peluang berhenti berlangganan</p>
+      <p class="muted">Dihitung dari {{ result.leaf_samples }} pelanggan latih yang berakhir di daun pohon yang sama.</p>
+
+      <h3>Bagaimana model sampai di sini</h3>
+      <ol class="path">
+        {% for s in result.steps %}
+        <li>
+          <span class="q">{{ s.question }}</span>
+          <span class="a {{ 'yes' if s.answer == 'Ya' else 'no' }}">{{ s.answer }}</span>
+          {% if s.note %}<span class="note">{{ s.note }}</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <div class="signal idle" aria-hidden="true">
+        {% for i in range(1, 6) %}<span class="bar b{{ i }}"></span>{% endfor %}
+      </div>
+      <h2>Hasil prediksi</h2>
+      <p class="muted">Isi formulir lalu pilih “Prediksi churn”. Hasil dan jalur keputusan pohon akan tampil di sini.</p>
+    {% endif %}
+  </section>
+</main>
+
+<footer class="foot">Model: Decision Tree (max_depth=4) dilatih pada dataset Telco Customer Churn. Hasil bersifat perkiraan untuk tujuan pembelajaran.</footer>
+</body>
+</html>
