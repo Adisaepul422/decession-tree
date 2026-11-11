@@ -7,7 +7,68 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+:root{
+  --bg:#e9eef3; --panel:#ffffff; --ink:#0e1b2c; --muted:#5b6b7d; --line:#cbd5e0;
+  --navy:#12305a; --stay:#0b7a75; --churn:#c0264b; --stay-bg:#e4f4f2; --churn-bg:#fbe9ee;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.top,.layout,.foot{max-width:1080px;margin:0 auto;padding:0 20px}
+.top{padding-top:36px;padding-bottom:20px}
+.top h1{font-size:clamp(1.7rem,4vw,2.3rem);line-height:1.15;margin:0 0 8px;letter-spacing:-.01em}
+.top p{margin:0;max-width:62ch;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start;padding-bottom:28px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px}
+fieldset{border:0;margin:0 0 18px;padding:0}
+legend{font-weight:700;font-size:1.05rem;padding:0;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:4px}
+label{font-size:.9rem;font-weight:600}
+small{color:var(--muted);font-size:.8rem}
+input,select{font:inherit;color:var(--ink);background:#fff;border:1px solid #9fb0c2;border-radius:6px;padding:9px 10px;width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #6aa3e8;outline-offset:2px}
+button{font:inherit;font-weight:700;background:var(--navy);color:#fff;border:0;border-radius:6px;padding:12px 22px;cursor:pointer;width:100%;margin-top:4px}
+button:hover{background:#0b2244}
+.errors{background:var(--churn-bg);border:1px solid #e9a7b8;border-radius:6px;padding:12px 14px;margin-bottom:16px;color:#7a1630}
+.errors ul{margin:6px 0 0;padding-left:20px}
+
+.result{position:sticky;top:16px}
+.result h2{font-size:1.6rem;margin:10px 0 2px;line-height:1.2}
+.result h3{font-size:1rem;margin:22px 0 8px}
+.pct{margin:0;font-size:1.05rem}
+.pct strong{font-size:1.5rem}
+.muted{color:var(--muted);font-size:.9rem;margin:6px 0 0}
+.is-churn{border-color:var(--churn);background:linear-gradient(var(--churn),var(--churn)) top/100% 5px no-repeat,var(--panel)}
+.is-stay{border-color:var(--stay);background:linear-gradient(var(--stay),var(--stay)) top/100% 5px no-repeat,var(--panel)}
+.is-churn h2,.is-churn .pct strong{color:var(--churn)}
+.is-stay h2,.is-stay .pct strong{color:var(--stay)}
+
+.signal{display:flex;align-items:flex-end;gap:5px;height:44px}
+.bar{width:12px;border-radius:2px;background:#d3dce6}
+.b1{height:9px}.b2{height:17px}.b3{height:25px}.b4{height:34px}.b5{height:44px}
+.is-stay .bar.on{background:var(--stay)}
+.is-churn .bar.on{background:var(--churn)}
+
+.path{list-style:none;margin:0;padding:0;counter-reset:s}
+.path li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:8px 0 8px 30px;border-top:1px solid #e3e9ef;position:relative;counter-increment:s}
+.path li::before{content:counter(s);position:absolute;left:0;top:9px;width:20px;height:20px;border-radius:50%;background:#e3e9ef;font-size:.75rem;font-weight:700;display:grid;place-items:center}
+.q{font-weight:500}
+.a{font-weight:700;font-size:.85rem;padding:1px 8px;border-radius:99px}
+.a.yes{background:var(--stay-bg);color:#075e5a}
+.a.no{background:#eceff3;color:#3d4b5c}
+.note{flex-basis:100%;color:var(--muted);font-size:.82rem}
+.foot{padding-bottom:36px;color:var(--muted);font-size:.85rem}
+
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr}
+  .result{position:static}
+}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.card{padding:18px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.result:focus{outline:none}
+</style>
 </head>
 <body>
 <header class="top">
